@@ -2,8 +2,8 @@
 
 public class Speciality: EntityBase
 {
-    public string Name { get; init; }
-    public string Description { get; init; }
+    public string Name { get; private set; }
+    public string Description { get; private set; }
 
     #region Constructor for EF
 #pragma warning disable CS8618
@@ -15,5 +15,12 @@ public class Speciality: EntityBase
     {
         Name = name;
         Description = description;
+    }
+
+    public void Update(string name, string description)
+    {
+        Name = name;
+        Description = description;
+        UpdatedAt = DateTime.UtcNow;
     }
 }

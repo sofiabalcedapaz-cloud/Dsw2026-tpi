@@ -14,3 +14,10 @@ Instrucciones:
 * Tener en cuenta que ya se realizaron las migraciones de Identity, crear nuevas de ser necesario
 * Para más detalles, revisar la grabación de la última clase
 * El endpoint de registración de usuarios administradores está disponible para crear usuarios y poder hacer pruebas, a futuro se eliminará
+
+
+## Integrantes 
+* Balceda Paz, Sofia - 57927
+* Barrientos, Victorias - 57911
+* Lopez, Mauro - 58066
+* Lorca, Nicole - 60705 
