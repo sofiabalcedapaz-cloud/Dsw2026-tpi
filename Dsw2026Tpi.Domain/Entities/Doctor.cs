@@ -21,7 +21,9 @@ public class Doctor: EntityBase
         Name = name;
         LicenseNumber = licenseNumber;
         Speciality = speciality;
+        SpecialityId = speciality.Id;
         IsActive = true;
+       
     }
 
     public void Deactivate()
