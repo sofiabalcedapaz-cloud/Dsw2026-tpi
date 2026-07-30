@@ -11,15 +11,18 @@ namespace Dsw2026Tpi.Api.Controllers;
 public class DoctorController : AppController
 {
     private readonly IDoctorService _service;
+    private readonly IAvailabilityRuleService _availabilityService;
 
-    public DoctorController(IDoctorService service)
+    public DoctorController(IDoctorService service, IAvailabilityRuleService availabilityService)
     {
         _service = service;
+        _availabilityService = availabilityService;
     }
+
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll([FromQuery]int pageSize, [FromQuery]int pageIndex, [FromQuery]string? name = null)
+    public async Task<IActionResult> GetAll([FromQuery] int pageSize, [FromQuery] int pageIndex, [FromQuery] string? name = null)
     {
         var doctors = await _service.GetAll(pageSize, pageIndex, name);
         return Ok(doctors);
@@ -31,6 +34,14 @@ public class DoctorController : AppController
     {
         var doctor = await _service.Create(request);
         return Created(string.Empty, doctor);
+    }
+
+    [HttpGet("{id:guid}/availabilities")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAvailabilities(Guid id)
+    {
+        var availabilities = await _availabilityService.GetByDoctor(id);
+        return Ok(availabilities);
     }
 
     [HttpPut("{id:guid}")]

@@ -28,4 +28,9 @@ public class AvailabilityRule : EntityBase
         StartTime = startTime;
         EndTime = endTime;
     }
+
+    public string DayName => ((DayOfWeek)DayOfWeek).ToString();
+    public string StartTimeFormatted => StartTime.ToString("HH:mm");
+    public string EndTimeFormatted => EndTime.ToString("HH:mm");
+
 }

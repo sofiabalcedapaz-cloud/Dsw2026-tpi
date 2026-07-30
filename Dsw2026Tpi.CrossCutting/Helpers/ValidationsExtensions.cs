@@ -10,4 +10,10 @@ public static class ValidationsExtensions
         return !string.IsNullOrWhiteSpace(email) &&
             Regex.IsMatch(email, EmailPattern);
     }
+    public static bool IsValidTimeRange(this string startTime, string endTime)
+    {
+        return TimeOnly.TryParse(startTime, out var start) &&
+               TimeOnly.TryParse(endTime, out var end) &&
+               start < end;
+    }
 }
