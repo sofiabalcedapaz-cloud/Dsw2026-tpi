@@ -29,6 +29,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>Sources\roles.json</Link>
     </None>
+    <None Update="..\Dsw2026Tpi.Data\Sources\holidays.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Sources\holidays.json</Link>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
