@@ -23,7 +23,7 @@ namespace Dsw2026Tpi.Application.Services
             var doctor = await _persistence.GetById<Doctor>(doctorId) ?? throw new EntityNotFoundException(nameof(Doctor));
             var now = DateTime.UtcNow;
             var rules = await _persistence.GetFiltered<AvailabilityRule>(
-                a => a.DoctorId == doctorId && a.Month == now.Month && a.Year == now.Year);
+                a => a.DoctorId == doctorId && a.Month == now.Month && a.Year == now.Year && a.DayOfWeek >= (byte)now.DayOfWeek);
 
             return rules?.Select(a => new AvailabilityRuleModel.Response(
             a.Id,
