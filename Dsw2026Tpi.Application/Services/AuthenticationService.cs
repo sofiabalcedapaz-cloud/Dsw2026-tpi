@@ -63,6 +63,7 @@ public class AuthenticationService : IAuthenticationService
     {
         if (!request.Email.IsEmailValid()) throw new AuthenticationException();
         var patient = await _persistence.First<Patient>(p => p.Email == request.Email);
+        var user = await _userManager.FindByEmailAsync(request.Email);
 
         if (patient == null)
         {
@@ -73,13 +74,12 @@ public class AuthenticationService : IAuthenticationService
             };
             await _persistence.Add(patient);
         }
-        else if (patient.Dni != request.Dni)
+        else if (!await _signInManager.CheckPassword(user!,"Dni#" + request.Dni.ToString()))
         {
             _logger.LogError("Intento de login fallido para: {Email}", request.Email);
             throw new AuthenticationException();
         }
 
-        var user = await _userManager.FindByEmailAsync(request.Email);
         if (user == null)
         {
             user = new ApplicationUser
@@ -90,7 +90,7 @@ public class AuthenticationService : IAuthenticationService
                 UpdatedAt = DateTime.UtcNow
             };
 
-            var createResult = await _userManager.CreateAsync(user, "Paciente123!");
+            var createResult = await _userManager.CreateAsync(user,"Dni#" + request.Dni.ToString());
             if (!createResult.Succeeded) throw new AuthenticationException();
             await _userManager.AddToRoleAsync(user, Roles.Patient);
         }
