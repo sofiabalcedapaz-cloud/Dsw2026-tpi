@@ -13,6 +13,7 @@ namespace Dsw2026Tpi.Application.Services
     public class AvailabilityRuleService
     {
         private readonly IPersistence _persistence;
+        private const int SlotDurationMinutes = 30; 
         public AvailabilityRuleService(IPersistence persistence)
         {
             _persistence = persistence;
@@ -54,7 +55,13 @@ namespace Dsw2026Tpi.Application.Services
 
 
                 await _persistence.Add(rule);
-                responses.Add(new AvailabilityRuleModel.Response(rule.Id, rule.DoctorId, rule.DayName, rule.StartTimeFormatted, rule.EndTimeFormatted));
+                await GenerateSlots(rule);
+                responses.Add(new AvailabilityRuleModel.Response(
+                    rule.Id,
+                    rule.DoctorId,
+                    rule.DayName,
+                    rule.StartTimeFormatted,
+                    rule.EndTimeFormatted));
             }
             return responses;
         }
@@ -87,6 +94,29 @@ namespace Dsw2026Tpi.Application.Services
 
             if (existing != null)
                 throw new ConflictException("AVAILABILITY_OVERLAP", "El médico ya posee un horario que se solapa con el ingresado.");
+        }
+
+        private async Task GenerateSlots(AvailabilityRule rule)
+        {
+            var firtsDay = new DateOnly(rule.Year, rule.Month, 1);
+            var lastDay = firtsDay.AddMonths(1).AddDays(-1);
+
+            for(var date = firtsDay; date <= lastDay; date = date.AddDays(1))
+            {
+                if((byte)date.DayOfWeek != rule.DayOfWeek)
+                {
+                    continue;
+                }
+
+                var currentStart = rule.StartTime;
+
+                while(currentStart.AddMinutes(SlotDurationMinutes) <= rule.EndTime)
+                {
+                    var slot = new AvailabilitySlot(rule.Id, date, currentStart, currentStart.AddMinutes(SlotDurationMinutes));
+                    await _persistence.Add(slot);
+                    currentStart = currentStart.AddMinutes(SlotDurationMinutes);
+                }
+            }
         }
 
     }
