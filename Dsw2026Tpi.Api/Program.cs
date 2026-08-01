@@ -1,5 +1,7 @@
 using Dsw2026Tpi.Api.Configurations;
 using Dsw2026Tpi.Api.Middlewares;
+using Dsw2026Tpi.Application.Interfaces;
+using Dsw2026Tpi.Application.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Serilog;
@@ -31,6 +33,13 @@ public class Program
             builder.Services.AddAppDependencies();
             builder.Services.AddControllers();
             builder.Services.AddHealthChecks();
+            builder.Services.AddAppRateLimiting(builder.Configuration);
+            builder.Services.AddScoped<ISpecialtyService, SpecialtyService>();
+            builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
+            builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+
+            
+
 
             var app = builder.Build();
 
@@ -57,6 +66,8 @@ public class Program
             Log.Information("Aplicación iniciada correctamente");
 
             await app.RunAsync();
+            app.UseRateLimiter();
+
         }
         catch (HostAbortedException)
         {

@@ -10,19 +10,4 @@
     <None Remove="EXCEPTIONS_ARCHITECTURE.md" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Resources\ErrorCodes.Designer.cs">
-      <DependentUpon>ErrorCodes.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Resources\ErrorCodes.resx">
-      <LastGenOutput>ErrorCodes.Designer.cs</LastGenOutput>
-      <Generator>PublicResXFileCodeGenerator</Generator>
-    </EmbeddedResource>
-  </ItemGroup>
-
 </Project>

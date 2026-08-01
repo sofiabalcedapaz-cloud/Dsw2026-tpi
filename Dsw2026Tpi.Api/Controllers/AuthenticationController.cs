@@ -1,34 +1,52 @@
 ﻿using Dsw2026Tpi.Application.Dtos;
 using Dsw2026Tpi.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Dsw2026Tpi.Api.Controllers;
 
 [Route("api/auth")]
+[ApiController]
 public class AuthenticationController : AppController
 {
     private readonly IAuthenticationService _authenticationService;
 
-    public AuthenticationController(IAuthenticationService authenticationService) 
+    public AuthenticationController(IAuthenticationService authenticationService)
     {
         _authenticationService = authenticationService;
     }
 
     [HttpPost("admin/register")]
+    [EnableRateLimiting("GeneralPolicy")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] RegisterModel.Request request)
     {
         var result = await _authenticationService.Register(request);
-        return Ok(result.Email); 
+        return Ok(result.Email);
     }
 
     [HttpPost("admin/login")]
+    [EnableRateLimiting("AdminLoginPolicy")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Login([FromBody] LoginAdminModel.Request request)
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> LoginAdmin([FromBody] LoginAdminModel.Request request)
     {
         var result = await _authenticationService.LoginAdmin(request);
+        return Ok(result);
+    }
+
+    [HttpPost("patient/login")]
+    [EnableRateLimiting("PatientLoginPolicy")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> LoginPatient([FromBody] LoginPatientModel.Request request)
+    {
+        var result = await _authenticationService.LoginPatient(request);
         return Ok(result);
     }
 }

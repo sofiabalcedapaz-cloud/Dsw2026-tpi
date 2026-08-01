@@ -7,18 +7,16 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace Dsw2026Tpi.Api.Controllers;
 
-[Route("api/doctors")]
+[Route("api/specialties")]
 [ApiController]
 [EnableRateLimiting("GeneralPolicy")]
-public class DoctorController : AppController
+public class SpecialtyController : AppController
 {
-    private readonly IDoctorService _doctorService;
-    private readonly IAvailabilityService _availabilityService;
+    private readonly ISpecialtyService _service;
 
-    public DoctorController(IDoctorService doctorService, IAvailabilityService availabilityService)
+    public SpecialtyController(ISpecialtyService service)
     {
-        _doctorService = doctorService;
-        _availabilityService = availabilityService;
+        _service = service;
     }
 
     [HttpGet]
@@ -26,8 +24,8 @@ public class DoctorController : AppController
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll([FromQuery] int pageSize = 10, [FromQuery] int pageIndex = 1, [FromQuery] string? name = null)
     {
-        var doctors = await _doctorService.GetAll(pageSize, pageIndex, name);
-        return Ok(doctors);
+        var result = await _service.GetAll(pageSize, pageIndex, name);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
@@ -36,30 +34,20 @@ public class DoctorController : AppController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var doctor = await _doctorService.GetById(id);
-        if (doctor is null)
+        var result = await _service.GetById(id);
+        if (result is null)
             return NotFound();
-        return Ok(doctor);
-    }
-
-    [HttpGet("{id}/availabilities")]
-    [AllowAnonymous]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAvailabilities(Guid id)
-    {
-        var availabilities = await _availabilityService.GetDoctorAvailabilities(id);
-        return Ok(availabilities);
+        return Ok(result);
     }
 
     [HttpPost]
     [Authorize(Policy = Policies.AdminPolicy)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Create([FromBody] DoctorModel.Request request)
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Create([FromBody] SpecialtyRequest request)
     {
-        var result = await _doctorService.Create(request);
+        var result = await _service.Create(request);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
@@ -68,9 +56,10 @@ public class DoctorController : AppController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(Guid id, [FromBody] DoctorModel.Request request)
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Update(Guid id, [FromBody] SpecialtyRequest request)
     {
-        var result = await _doctorService.Update(id, request);
+        var result = await _service.Update(id, request);
         return Ok(result);
     }
 
@@ -80,7 +69,7 @@ public class DoctorController : AppController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)
     {
-        await _doctorService.Delete(id);
+        await _service.Delete(id);
         return Ok("ok");
     }
 }
