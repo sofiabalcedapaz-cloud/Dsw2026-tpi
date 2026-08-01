@@ -27,13 +27,13 @@ namespace Dsw2026Tpi.Api.Controllers
             return Created(string.Empty, availability);
         }
 
-        [HttpPut("{id:guid}")]
+        [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(Guid id, [FromBody] AvailabilityRuleModel.Request request)
+        public async Task<IActionResult> Update([FromBody] AvailabilityRuleModel.Request request)
         {
-            var availability = await _service.Update(id, request);
+            var availability = await _service.Update(request.DoctorId, request);
             return Ok(availability);
         }
     }

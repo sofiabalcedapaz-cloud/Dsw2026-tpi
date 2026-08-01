@@ -7,10 +7,11 @@ using Dsw2026Tpi.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Dsw2026Tpi.Application.Interfaces;
 
 namespace Dsw2026Tpi.Application.Services
 {
-    public class AvailabilityRuleService
+    public class AvailabilityRuleService : IAvailabilityRuleService
     {
         private readonly IPersistence _persistence;
         private const int SlotDurationMinutes = 30; 

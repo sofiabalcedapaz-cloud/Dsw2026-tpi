@@ -15,11 +15,14 @@ namespace Dsw2026Tpi.Data.Configurations
 
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.Email)
+            builder.Property(x => x.UserId)
                 .IsRequired();
 
-            builder.Property(x => x.Dni)
-                .IsRequired();
+            builder.Property(x => x.FullName)
+                .IsRequired(false);
+
+            builder.HasIndex(x => x.Dni)
+                .IsUnique();
         }
     }
 }

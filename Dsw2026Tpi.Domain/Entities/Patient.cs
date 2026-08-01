@@ -6,7 +6,8 @@ namespace Dsw2026Tpi.Domain.Entities
 {
     public class Patient: EntityBase
     {
-        public string Email { get; private set; }
+        public Guid UserId { get; private set; }
+        public string FullName { get; private set; }
         public long Dni { get; private set; }
 
         #region Constructor for EF
@@ -17,10 +18,11 @@ namespace Dsw2026Tpi.Domain.Entities
 #pragma warning restore CS8618
         #endregion
 
-        public Patient (string email, long dni, Guid? id = null) : base(id)
+        public Patient ( Guid userId, long dni, string fullName = "", Guid? id = null) : base(id)
         {
-            Email = email;
-            Dni = dni; 
+            UserId = userId;
+            Dni = dni;
+            FullName = fullName;
         }
     }
 }

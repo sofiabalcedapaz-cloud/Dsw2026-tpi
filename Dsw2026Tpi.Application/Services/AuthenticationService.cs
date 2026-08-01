@@ -62,26 +62,17 @@ public class AuthenticationService : IAuthenticationService
     public async Task<LoginPatientModel.Response> LoginPatient(LoginPatientModel.Request request)
     {
         if (!request.Email.IsEmailValid()) throw new AuthenticationException();
-        var patient = await _persistence.First<Patient>(p => p.Email == request.Email);
         var user = await _userManager.FindByEmailAsync(request.Email);
-
-        if (patient == null)
-        {
-            patient = new Patient(request.Email, request.Dni)
-            {
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-            await _persistence.Add(patient);
-        }
-        else if (!await _signInManager.CheckPassword(user!,"Dni#" + request.Dni.ToString()))
-        {
-            _logger.LogError("Intento de login fallido para: {Email}", request.Email);
-            throw new AuthenticationException();
-        }
+        var dniAsPassword = "Dni#" + request.Dni.ToString();
 
         if (user == null)
         {
+            var dniExists = await _persistence.First<Patient>(p => p.Dni == request.Dni);
+            if (dniExists != null)
+            {
+                _logger.LogError("Intento con DNI ya existente : {Dni}", request.Dni);
+                throw new ConflictException(nameof(ErrorCodes.PATIENT_DNI_CONFLICT), ErrorCodes.PATIENT_DNI_CONFLICT);
+            }
             user = new ApplicationUser
             {
                 UserName = request.Email,
@@ -90,24 +81,33 @@ public class AuthenticationService : IAuthenticationService
                 UpdatedAt = DateTime.UtcNow
             };
 
-            var createResult = await _userManager.CreateAsync(user,"Dni#" + request.Dni.ToString());
+            var createResult = await _userManager.CreateAsync(user, dniAsPassword); 
             if (!createResult.Succeeded) throw new AuthenticationException();
+
             await _userManager.AddToRoleAsync(user, Roles.Patient);
-        }
 
-        var roles = await _userManager.GetRolesAsync(user);
-        if (!roles.Contains(Roles.Patient))
+            var patient = new Patient(Guid.Parse(user.Id), request.Dni)
+            {
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            await _persistence.Add(patient);
+        }
+        else
         {
-            throw new AuthenticationException();
+            var roles = await _userManager.GetRolesAsync(user);
+            if (!roles.Contains(Roles.Patient)) throw new AuthenticationException();
+
+            var patient = await _persistence.First<Patient>(p => p.UserId == Guid.Parse(user.Id));
+            if(patient == null || patient.Dni != request.Dni)
+            {
+                _logger.LogError("Intento de loging fallido para: {Email}", request.Email);
+                throw new AuthenticationException();
+            }
         }
+        var token = _jwtService.GenerateToken(user.UserName!, Roles.Patient);
 
-        var role = Roles.Patient;
-        var token = _jwtService.GenerateToken(user.UserName!, role);
-
-        return new LoginPatientModel.Response(
-            token,
-            role
-        );
+        return new LoginPatientModel.Response(token, Roles.Patient);
     }
 
     public async Task<RegisterModel.Response> Register(RegisterModel.Request request)
