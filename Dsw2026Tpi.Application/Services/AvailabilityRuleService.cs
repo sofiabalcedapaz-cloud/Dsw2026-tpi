@@ -101,9 +101,16 @@ namespace Dsw2026Tpi.Application.Services
             var firtsDay = new DateOnly(rule.Year, rule.Month, 1);
             var lastDay = firtsDay.AddMonths(1).AddDays(-1);
 
-            for(var date = firtsDay; date <= lastDay; date = date.AddDays(1))
+            var holidaysFile = Path.Combine(AppContext.BaseDirectory, "Sources", "holidays.json");
+
+            for (var date = firtsDay; date <= lastDay; date = date.AddDays(1))
             {
                 if((byte)date.DayOfWeek != rule.DayOfWeek)
+                {
+                    continue;
+                }
+
+                if(date.IsHoliday(holidaysFile))
                 {
                     continue;
                 }
