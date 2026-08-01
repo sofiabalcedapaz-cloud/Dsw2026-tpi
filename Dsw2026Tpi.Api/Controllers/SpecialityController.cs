@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace Dsw2026Tpi.Api.Controllers;
 
 [Route("api/specialities")]
-[Authorize(Policy = Policies.AdminPolicy)]
 public class SpecialityController : AppController
 {
     private readonly ISpecialityService _service;
@@ -30,6 +29,7 @@ public class SpecialityController : AppController
     }
 
     [HttpPost]
+    [Authorize(Policy = Policies.AdminPolicy)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create(
         [FromBody] SpecialityModel.Request request)
@@ -40,6 +40,7 @@ public class SpecialityController : AppController
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Policy = Policies.AdminPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Update(
         Guid id,
@@ -51,11 +52,12 @@ public class SpecialityController : AppController
     }
 
     [HttpDelete("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [Authorize(Policy = Policies.AdminPolicy)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _service.Delete(id);
 
-        return NoContent();
+        return Ok("Ok");
     }
 }
