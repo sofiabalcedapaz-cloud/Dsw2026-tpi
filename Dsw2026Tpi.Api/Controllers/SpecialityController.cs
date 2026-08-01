@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Dsw2026Tpi.Api.Controllers;
 
-[Route("specialities")]
+[Route("api/specialities")]
 [Authorize(Policy = Policies.AdminPolicy)]
 public class SpecialityController : AppController
 {
@@ -51,11 +51,11 @@ public class SpecialityController : AppController
     }
 
     [HttpDelete("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _service.Delete(id);
 
-        return NoContent();
+        return Ok();
     }
 }

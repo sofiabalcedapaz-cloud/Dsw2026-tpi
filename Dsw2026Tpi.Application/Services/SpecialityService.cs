@@ -18,6 +18,11 @@ public class SpecialityService : ISpecialityService
 
     public async Task<Pagination<SpecialityModel.Response>> GetAll(int pageSize, int pageIndex, string? name = null)
     {
+        if (!string.IsNullOrEmpty(name) && (name.Length < 3 || name.Length > 100))
+        {
+            throw new ValidationException("El nombre debe tener entre 3 y 100 caracteres.", nameof(ErrorCodes.VALIDATION_ERROR)); 
+        }
+
         var specialities = await _persistence.Paginate<Speciality, string>(pageSize, pageIndex,
             s => string.IsNullOrWhiteSpace(name) ||
                  s.Name.Contains(name),
