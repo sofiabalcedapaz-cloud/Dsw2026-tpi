@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Dsw2026Tpi.Data.Configurations;
 
-public class SpecialityConfiguration : IEntityTypeConfiguration<Speciality>
+public class PatientConfiguration : IEntityTypeConfiguration<Patient>
 {
-    public void Configure(EntityTypeBuilder<Speciality> builder)
+    public void Configure(EntityTypeBuilder<Patient> builder)
     {
-        builder.ToTable("Specialities");
+        builder.ToTable("Patients");
 
         builder.HasKey(x => x.Id);
 
@@ -19,15 +19,29 @@ public class SpecialityConfiguration : IEntityTypeConfiguration<Speciality>
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(x => x.Description)
+        builder.Property(x => x.Email)
             .IsRequired()
             .HasMaxLength(100);
+
+        builder.Property(x => x.Dni)
+            .IsRequired();
+
+        builder.Property(x => x.Phone)
+            .HasMaxLength(20);
+
+        builder.Property(x => x.IsActive)
+            .IsRequired()
+            .HasDefaultValue(true);
 
         builder.Property(x => x.Deleted)
             .IsRequired()
             .HasDefaultValue(false);
 
-        builder.HasIndex(x => x.Name)
+        builder.HasIndex(x => x.Dni)
+            .IsUnique()
+            .HasFilter("[Deleted] = 0");
+
+        builder.HasIndex(x => x.Email)
             .IsUnique()
             .HasFilter("[Deleted] = 0");
     }

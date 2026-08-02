@@ -3,6 +3,7 @@ using Dsw2026Tpi.Data.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 using System.Text;
 
 namespace Dsw2026Tpi.Api.Configurations;
@@ -40,6 +41,9 @@ public static class SecurityConfigurationExtensions
                 };
             });
         services.AddAuthorizationBuilder()
+            .SetFallbackPolicy(new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build())
             .AddPolicy(Policies.AdminPolicy, policy =>
                 policy.RequireRole(Roles.Administrator))
             .AddPolicy(Policies.PatientPolicy, policy =>
@@ -89,7 +93,7 @@ public static class SecurityConfigurationExtensions
         {
             options.Password = new PasswordOptions
             {
-                RequiredLength = 6,
+                RequiredLength = 8,
                 RequireLowercase = true,
                 RequireUppercase = true,
                 RequireDigit = true

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Dsw2026Tpi.Domain.Entities;
 

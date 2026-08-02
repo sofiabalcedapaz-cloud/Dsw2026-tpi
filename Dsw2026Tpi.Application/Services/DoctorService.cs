@@ -30,6 +30,7 @@ public class DoctorService : IDoctorService
             d => d.Name,
             nameof(Doctor.Speciality));
 
+
         return doctors.Map(d => new DoctorModel.Response(
             d.Id,
             d.Name,
@@ -68,6 +69,7 @@ public class DoctorService : IDoctorService
             doctor.Name,
             doctor.LicenseNumber,
             new DoctorModel.SpecialityDto(specialty.Id, specialty.Name));
+
     }
 
     public async Task<DoctorModel.Response> Update(Guid id, DoctorModel.Request request)
@@ -92,6 +94,7 @@ public class DoctorService : IDoctorService
             updatedDoctor.Name,
             updatedDoctor.LicenseNumber,
             new DoctorModel.SpecialityDto(specialty.Id, specialty.Name));
+
     }
 
     public async Task Delete(Guid id)
@@ -112,3 +115,4 @@ public class DoctorService : IDoctorService
             throw new ValidationException("El nombre debe tener entre 3 y 100 caracteres", nameof(ErrorCodes.VALIDATION_ERROR));
     }
 }
+

@@ -1,8 +1,8 @@
-﻿using Dsw2026Tpi.Application.Interfaces;
+using Dsw2026Tpi.Application.Interfaces;
 using Dsw2026Tpi.Data.Identity;
 using Microsoft.AspNetCore.Identity;
 
-namespace Dsw2026Tpi.Api.Services;
+namespace Dsw2026Tpi.Application.Services;
 
 public class SignInService(SignInManager<ApplicationUser> signInManager) : ISignInService
 {

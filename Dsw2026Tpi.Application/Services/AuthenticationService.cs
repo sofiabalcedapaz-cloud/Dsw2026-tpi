@@ -4,7 +4,6 @@ using System.Linq;
 using Dsw2026Tpi.Application.Dtos;
 using Dsw2026Tpi.Application.Interfaces;
 using Dsw2026Tpi.CrossCutting.Exceptions;
-using Dsw2026Tpi.CrossCutting.Helpers;
 using Dsw2026Tpi.CrossCutting.Identity;
 using Dsw2026Tpi.CrossCutting.Resources;
 using Dsw2026Tpi.Data.Identity;
@@ -12,6 +11,7 @@ using Dsw2026Tpi.Domain.Entities;
 using Dsw2026Tpi.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions;
 
 namespace Dsw2026Tpi.Application.Services;
 
@@ -40,9 +40,16 @@ public class AuthenticationService : IAuthenticationService
         _persistence = persistence;
     }
 
+    private bool IsEmailValid(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email)) return false;
+        var pattern = @"^[^\s@]+@[^\s@]+\.[^\s@]{2,}$";
+        return Regex.IsMatch(email, pattern);
+    }
+
     public async Task<LoginAdminModel.Response> LoginAdmin(LoginAdminModel.Request request)
     {
-        if (!request.Email.IsEmailValid()) throw new AuthenticationException();
+        if (!IsEmailValid(request.Email)) throw new AuthenticationException();
         var user = await _userManager.FindByEmailAsync(request.Email) ?? throw new AuthenticationException();
         var result = await _signInManager.CheckPassword(user, request.Password);
 
@@ -53,13 +60,9 @@ public class AuthenticationService : IAuthenticationService
         }
 
         var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-
         var token = _jwtService.GenerateToken(user.UserName!, role);
 
-        return new LoginAdminModel.Response(
-            token,
-            role
-        );
+        return new LoginAdminModel.Response(token, role);
     }
 
     public async Task<LoginPatientModel.Response> LoginPatient(LoginPatientModel.Request request)
@@ -68,7 +71,7 @@ public class AuthenticationService : IAuthenticationService
         if (dniStr.Length < 7 || dniStr.Length > 8)
             throw new ValidationException("El DNI debe tener entre 7 y 8 dígitos", nameof(ErrorCodes.VALIDATION_ERROR));
 
-        if (!request.Email.IsEmailValid())
+        if (!IsEmailValid(request.Email))
             throw new ValidationException("El email no es válido", nameof(ErrorCodes.VALIDATION_ERROR));
 
         var patient = await _persistence.First<Patient>(p => p.Dni == request.Dni);
@@ -88,8 +91,8 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task<RegisterModel.Response> Register(RegisterModel.Request request)
     {
-        if (!request.Email.IsEmailValid()) throw new ValidationException(ErrorCodes.REGISTER_USER_INVALID,
-            nameof(ErrorCodes.REGISTER_USER_INVALID));
+        if (!IsEmailValid(request.Email))
+            throw new ValidationException("El email no es válido", nameof(ErrorCodes.REGISTER_USER_INVALID));
 
         var user = new ApplicationUser
         {
@@ -101,11 +104,11 @@ public class AuthenticationService : IAuthenticationService
 
         var result = await _userManager.CreateAsync(user, request.Password);
 
-        if (!result.Succeeded) throw new ConflictException(nameof(ErrorCodes.REGISTER_USER_CONFLICT),
-            ErrorCodes.REGISTER_USER_CONFLICT)
+        if (!result.Succeeded)
+            throw new ConflictException(nameof(ErrorCodes.REGISTER_USER_CONFLICT), ErrorCodes.REGISTER_USER_CONFLICT)
                 .WithDetail(result.Errors.Select(e => (e.Code, e.Description)));
 
-        _ = await _userManager.AddToRoleAsync(user, Roles.Administrator);
+        await _userManager.AddToRoleAsync(user, Roles.Administrator);
 
         _logger.LogInformation("Usuario registrado: {Email}", request.Email);
 

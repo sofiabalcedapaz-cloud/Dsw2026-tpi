@@ -11,3 +11,4 @@ public static class ValidationsExtensions
         return !string.IsNullOrWhiteSpace(email) && Regex.IsMatch(email, EmailPattern);
     }
 }
+
