@@ -1,9 +1,19 @@
-﻿namespace Dsw2026Tpi.Domain.Entities;
+﻿using System;
 
-public abstract class EntityBase(Guid? id = null)
+namespace Dsw2026Tpi.Domain.Entities;
+
+public abstract class EntityBase
 {
-    public Guid Id { get; init; } = id ?? Guid.NewGuid();
-
+    public Guid Id { get; init; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+
+    protected EntityBase(Guid? id = null)
+    {
+        Id = id ?? Guid.NewGuid();
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    protected EntityBase() { }
 }

@@ -1,12 +1,16 @@
-﻿namespace Dsw2026Tpi.CrossCutting.Models;
+﻿using System.Collections.Generic;
+
+namespace Dsw2026Tpi.CrossCutting.Models;
 
 public record ErrorResponse(string ErrorCode, string Message)
 {
     public ICollection<ErrorDetail> Details { get; } = [];
+
     public void AddDetail(string field, string issue)
     {
         Details.Add(new ErrorDetail(field, issue));
     }
+
     public void AddDetail(IEnumerable<(string, string)> details)
     {
         foreach (var detail in details)
@@ -15,4 +19,5 @@ public record ErrorResponse(string ErrorCode, string Message)
         }
     }
 }
+
 public record ErrorDetail(string Field, string Issue);
