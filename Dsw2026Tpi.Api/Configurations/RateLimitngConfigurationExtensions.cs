@@ -14,6 +14,16 @@ namespace Dsw2026Tpi.Api.Configurations
             {
                 options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
+                options.AddPolicy(RateLimitPolices.General, httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: httpContext.User.Identity?.Name ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = section.GetValue<int>("General:PermitLimit", 100),
+                        Window = TimeSpan.FromSeconds(section.GetValue<int>("General:WindowSeconds", 60)),
+                        QueueLimit = 0
+                    }));
+
                 options.AddPolicy(RateLimitPolices.AdminLogin, httpContext =>
                     RateLimitPartition.GetFixedWindowLimiter(
                         partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",

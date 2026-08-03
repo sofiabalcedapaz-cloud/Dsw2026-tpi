@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace Dsw2026Tpi.Api.Controllers;
 
+[Tags("1. Autenticación")]
 [Route("api/auth")]
 public class AuthenticationController : AppController
 {

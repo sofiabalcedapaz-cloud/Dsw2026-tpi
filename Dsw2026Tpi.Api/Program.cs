@@ -49,9 +49,10 @@ public class Program
             }
 
             app.UseCors();
-            app.UseRateLimiter();
+            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseRateLimiter();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.MapControllers();

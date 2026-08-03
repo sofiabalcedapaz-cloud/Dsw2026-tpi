@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace Dsw2026Tpi.Api.Controllers;
 
+[Tags("2. Especialidades")]
 [Route("api/specialities")]
 public class SpecialityController : AppController
 {

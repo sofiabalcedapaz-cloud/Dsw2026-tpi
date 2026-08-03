@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace Dsw2026Tpi.Api.Controllers;
 
+[Tags("5. Citas y Turnos")]
 [Route("api/appointments")]
 public class AppointmentController : AppController
 {

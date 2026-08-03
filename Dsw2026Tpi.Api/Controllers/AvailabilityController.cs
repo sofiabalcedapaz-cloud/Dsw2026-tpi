@@ -6,15 +6,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace Dsw2026Tpi.Api.Controllers
-{
-    [Route("api/availabilities")]
-    [Authorize(Policy = Policies.AdminPolicy)]
-    public class AvailabilityController : AppController
-    {
-        private readonly IAvailabilityRuleService _service;
+namespace Dsw2026Tpi.Api.Controllers;
 
-        public AvailabilityController(IAvailabilityRuleService service)
+[Tags("4. Disponibilidades")]
+[Route("api/availabilities")]
+[Authorize(Policy = Policies.AdminPolicy)]
+public class AvailabilityController : AppController
+{
+   private readonly IAvailabilityRuleService _service;
+
+   public AvailabilityController(IAvailabilityRuleService service)
         {
             _service = service;
         }
@@ -48,5 +49,5 @@ namespace Dsw2026Tpi.Api.Controllers
             var availability = await _service.Update(request.DoctorId, request);
             return Ok(availability);
         }
-    }
 }
+
