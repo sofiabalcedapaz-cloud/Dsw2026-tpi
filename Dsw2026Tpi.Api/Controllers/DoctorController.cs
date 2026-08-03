@@ -3,6 +3,7 @@ using Dsw2026Tpi.Application.Interfaces;
 using Dsw2026Tpi.CrossCutting.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Dsw2026Tpi.Api.Controllers;
 
@@ -18,9 +19,9 @@ public class DoctorController : AppController
         _availabilityService = availabilityService;
     }
 
-
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [EnableRateLimiting(RateLimitPolices.General)]
     public async Task<IActionResult> GetAll([FromQuery] int pageSize, [FromQuery] int pageIndex, [FromQuery] string? name = null)
     {
         var doctors = await _service.GetAll(pageSize, pageIndex, name);
@@ -30,6 +31,7 @@ public class DoctorController : AppController
     [HttpPost]
     [Authorize(Policy = Policies.AdminPolicy)]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [EnableRateLimiting(RateLimitPolices.General)]
     public async Task<IActionResult> Create([FromBody] DoctorModel.Request request)
     {
         var doctor = await _service.Create(request);
@@ -39,6 +41,7 @@ public class DoctorController : AppController
     [HttpGet("{id:guid}/availabilities")]
     [Authorize(Policy = Policies.AdminPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [EnableRateLimiting(RateLimitPolices.General)]
     public async Task<IActionResult> GetAvailabilities(Guid id)
     {
         var availabilities = await _availabilityService.GetByDoctor(id);
@@ -48,6 +51,7 @@ public class DoctorController : AppController
     [HttpPut("{id:guid}")]
     [Authorize(Policy = Policies.AdminPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [EnableRateLimiting(RateLimitPolices.General)]
     public async Task<IActionResult> Update(Guid id, [FromBody] DoctorModel.Request request)
     {
         var doctor = await _service.Update(id, request);
@@ -57,6 +61,7 @@ public class DoctorController : AppController
     [HttpDelete("{id:guid}")]
     [Authorize(Policy = Policies.AdminPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [EnableRateLimiting(RateLimitPolices.General)]
     public async Task<IActionResult> Delete(Guid id)
     {
         await _service.Delete(id);

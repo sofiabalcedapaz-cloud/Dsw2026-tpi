@@ -3,6 +3,7 @@ using Dsw2026Tpi.Application.Interfaces;
 using Dsw2026Tpi.CrossCutting.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Dsw2026Tpi.Api.Controllers;
 
@@ -18,6 +19,7 @@ public class AppointmentController : AppController
 
     [HttpPost]
     [Authorize(Policy = Policies.PatientPolicy)]
+    [EnableRateLimiting(RateLimitPolices.AppointmentBooking)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create(
         [FromBody] AppointmentModel.Request request)
@@ -29,6 +31,7 @@ public class AppointmentController : AppController
 
     [HttpDelete("{id:guid}")]
     [Authorize(Policy = Policies.PatientPolicy)]
+    [EnableRateLimiting(RateLimitPolices.General)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Cancel(Guid id)
     {
@@ -39,6 +42,7 @@ public class AppointmentController : AppController
 
     [HttpGet("patient")]
     [Authorize(Policy = Policies.PatientPolicy)]
+    [EnableRateLimiting(RateLimitPolices.General)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetByPatient(
         [FromQuery] long dni)
@@ -50,6 +54,7 @@ public class AppointmentController : AppController
 
     [HttpGet]
     [Authorize(Policy = Policies.AdminPolicy)]
+    [EnableRateLimiting(RateLimitPolices.General)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetByDate(
         [FromQuery] DateOnly date,
@@ -66,6 +71,7 @@ public class AppointmentController : AppController
 
     [HttpGet("search")]
     [Authorize(Policy = Policies.AdminPolicy)]
+    [EnableRateLimiting(RateLimitPolices.General)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Search(
         [FromQuery] Guid? specialityId,

@@ -37,6 +37,7 @@ public class AuthenticationController : AppController
         var result = await _authenticationService.LoginAdmin(request);
         return Ok(result);
     }
+
     [HttpPost("patient/login")]
     [AllowAnonymous]
     [EnableRateLimiting(RateLimitPolices.PatientLogin)]
