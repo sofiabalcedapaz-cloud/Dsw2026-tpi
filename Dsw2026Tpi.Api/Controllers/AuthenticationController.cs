@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace Dsw2026Tpi.Api.Controllers;
 
+[Tags("1. Autenticación")]
 [Route("api/auth")]
 public class AuthenticationController : AppController
 {
@@ -37,6 +38,7 @@ public class AuthenticationController : AppController
         var result = await _authenticationService.LoginAdmin(request);
         return Ok(result);
     }
+
     [HttpPost("patient/login")]
     [AllowAnonymous]
     [EnableRateLimiting(RateLimitPolices.PatientLogin)]

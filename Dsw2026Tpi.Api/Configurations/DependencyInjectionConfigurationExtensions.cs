@@ -16,6 +16,7 @@ public static class DependencyInjectionConfigurationExtensions
         services.AddSingleton<JwtService>();
         services.AddScoped<ISpecialityService, SpecialityService>();
         services.AddScoped<IAvailabilityRuleService, AvailabilityRuleService>();
+        services.AddScoped<IAppointmentService, AppointmentService>();
         return services;
     }
 }

@@ -15,6 +15,7 @@ public class Dsw2026TpiDbContext: DbContext
     public DbSet<Speciality> Specialities => Set<Speciality>();
     public DbSet<AvailabilityRule> AvailabilityRules => Set<AvailabilityRule>();
     public DbSet<AvailabilitySlot> AvailabilitySlots => Set<AvailabilitySlot>();
+    public DbSet<Appointment> appointments => Set<Appointment>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
