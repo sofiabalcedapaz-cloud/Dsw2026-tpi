@@ -22,4 +22,15 @@ public class AvailabilitySlot : EntityBase
         EndTime = endTime;
         Status = AvailabilitySlotStatus.Available;
     }
+    public void Book()
+    {
+        Status = AvailabilitySlotStatus.Booked;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void Release()
+    {
+        Status = AvailabilitySlotStatus.Available;
+        UpdatedAt = DateTime.UtcNow;
+    }
 }
