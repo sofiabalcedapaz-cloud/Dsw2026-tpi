@@ -24,11 +24,12 @@ namespace Dsw2026Tpi.Data.Configurations
                 .HasMaxLength(20);
 
             builder.HasIndex(a => a.AvailabilitySlotId)
-                .IsUnique();
+                .IsUnique()
+                .HasFilter("[Status] = 'BOOKED'");
 
             builder.HasOne(a => a.AvailabilitySlot)
-                .WithOne()
-                .HasForeignKey<Appointment>(a => a.AvailabilitySlotId)
+                .WithMany()
+                .HasForeignKey(a => a.AvailabilitySlotId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(a => a.Patient)

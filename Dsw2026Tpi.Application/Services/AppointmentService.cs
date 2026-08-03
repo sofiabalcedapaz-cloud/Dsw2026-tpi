@@ -6,6 +6,7 @@ using Dsw2026Tpi.CrossCutting.Resources;
 using Dsw2026Tpi.Domain.Entities;
 using Dsw2026Tpi.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Dsw2026Tpi.Application.Services
 {
@@ -19,6 +20,12 @@ namespace Dsw2026Tpi.Application.Services
         }
         public async Task<AppointmentModel.Response> Create(AppointmentModel.Request request)
         {
+            if (string.IsNullOrWhiteSpace(request.Reason) || request.Reason.Trim().Length < 5)
+            {
+                throw new ValidationException(
+                    "El motivo debe tener al menos 5 caracteres.",
+                    nameof(ErrorCodes.VALIDATION_ERROR));
+            }
             var patient = await _persistence.First<Patient>(p => p.Dni == request.Patient.Dni)
                 ?? throw new EntityNotFoundException(nameof(Patient));
 
@@ -64,19 +71,32 @@ namespace Dsw2026Tpi.Application.Services
 
         public async Task Cancel(Guid id)
         {
-            var appointment = await _persistence.GetById<Appointment>(id, "AvailabilitySlot")
-                ?? throw new EntityNotFoundException(nameof(Appointment));
+            var appointment = await _persistence.GetById<Appointment>(id, nameof(Appointment.AvailabilitySlot));
+
+            if (appointment is null)
+            {
+                throw new EntityNotFoundException(
+                    nameof(Appointment));
+            }
 
             if (appointment.Status != AppointmentStatus.Booked)
-                throw new ValidationException("Solo se pueden cancelar turnos en estado BOOKED.", nameof(ErrorCodes.VALIDATION_ERROR));
+            {
+                throw new ConflictException(
+                    "APPOINTMENT_INVALID_STATUS",
+                    "Solo se puede cancelar una cita en estado BOOKED.");
+            }
+
+            if (appointment.AvailabilitySlot is null)
+            {
+                throw new EntityNotFoundException(
+                    nameof(AvailabilitySlot));
+            }
 
             appointment.Cancel();
+            appointment.AvailabilitySlot.Release();
 
-            if (appointment.AvailabilitySlot != null)
-            {
-                appointment.AvailabilitySlot.Release();
-                await _persistence.Update(appointment.AvailabilitySlot);
-            }
+            await _persistence.Update(
+                appointment.AvailabilitySlot);
 
             await _persistence.Update(appointment);
         }
@@ -101,15 +121,20 @@ namespace Dsw2026Tpi.Application.Services
                 ?? [];
         }
 
-        public async Task<IEnumerable<AppointmentListModel.Response>> GetByDate(DateOnly date)
+        public async Task<Pagination<AppointmentListModel.Response>> GetByDate(DateOnly date, int pageSize, int pageIndex)
         {
-            var appointments = await _persistence.GetFiltered<Appointment>(
-                a => a.AvailabilitySlot!.SlotDate == date,
-                "AvailabilitySlot.AvailabilityRule.Doctor.Speciality", "Patient");
+            var appointments =
+                await _persistence.Paginate<Appointment, TimeOnly>(
+                    pageSize,
+                    pageIndex,
+                    a => a.AvailabilitySlot != null &&
+                         a.AvailabilitySlot.SlotDate == date,
+                    a => a.AvailabilitySlot!.StartTime,
+                    "AvailabilitySlot.AvailabilityRule.Doctor.Speciality",
+                    "Patient");
 
-            return appointments?
-                .OrderBy(a => a.AvailabilitySlot!.StartTime)
-                .Select(a => new AppointmentListModel.Response(
+            return appointments.Map(a =>
+                new AppointmentListModel.Response(
                     a.Id,
                     a.Reason,
                     a.Status,
@@ -117,8 +142,7 @@ namespace Dsw2026Tpi.Application.Services
                     a.AvailabilitySlot.StartTime.ToString("HH:mm"),
                     a.AvailabilitySlot.EndTime.ToString("HH:mm"),
                     a.AvailabilitySlot.AvailabilityRule!.Doctor!.Name,
-                    a.AvailabilitySlot.AvailabilityRule.Doctor.Speciality!.Name))
-                ?? [];
+                    a.AvailabilitySlot.AvailabilityRule.Doctor.Speciality!.Name));
         }
 
         public async Task<Pagination<AppointmentSearchModel.Item>> Search(AppointmentSearchModel.Request request)

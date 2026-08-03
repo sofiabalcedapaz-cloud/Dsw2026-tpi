@@ -24,12 +24,24 @@ public class AvailabilitySlot : EntityBase
     }
     public void Book()
     {
+        if (Status != AvailabilitySlotStatus.Available)
+        {
+            throw new InvalidOperationException(
+                "El horario seleccionado no está disponible.");
+        }
+
         Status = AvailabilitySlotStatus.Booked;
         UpdatedAt = DateTime.UtcNow;
     }
 
     public void Release()
     {
+        if (Status != AvailabilitySlotStatus.Booked)
+        {
+            throw new InvalidOperationException(
+                "El horario no se encuentra reservado.");
+        }
+
         Status = AvailabilitySlotStatus.Available;
         UpdatedAt = DateTime.UtcNow;
     }

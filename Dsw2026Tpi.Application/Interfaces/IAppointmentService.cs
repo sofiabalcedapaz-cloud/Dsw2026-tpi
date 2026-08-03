@@ -10,7 +10,7 @@ namespace Dsw2026Tpi.Application.Interfaces
     {
         Task<AppointmentModel.Response> Create(AppointmentModel.Request request);
         Task<IEnumerable<AppointmentListModel.Response>> GetByPatient(long dni);
-        Task<IEnumerable<AppointmentListModel.Response>> GetByDate(DateOnly date);
+        Task<Pagination<AppointmentListModel.Response>> GetByDate(DateOnly date,int pageSize,int pageIndex);
         Task Cancel(Guid id);
         Task<Pagination<AppointmentSearchModel.Item>> Search(AppointmentSearchModel.Request request);
     }
