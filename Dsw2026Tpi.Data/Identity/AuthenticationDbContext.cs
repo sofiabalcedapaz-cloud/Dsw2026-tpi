@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Dsw2026Tpi.Data.Identity;
 
-public class AuthenticationDbContext: IdentityDbContext
+public class AuthenticationDbContext: IdentityDbContext<ApplicationUser>
 {
     public AuthenticationDbContext(DbContextOptions<AuthenticationDbContext> options)
             : base(options)
@@ -16,13 +16,12 @@ public class AuthenticationDbContext: IdentityDbContext
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<ApplicationUser>(b => { b.ToTable("ApplicationUsers"); });
-        builder.Entity<IdentityUser>(b => { b.ToTable("Users"); });
-        builder.Entity<IdentityRole>(b => { b.ToTable("Roles"); });
-        builder.Entity<IdentityUserRole<string>>(b => { b.ToTable("UsersRoles"); });
-        builder.Entity<IdentityUserClaim<string>>(b => { b.ToTable("UsersClaims"); });
-        builder.Entity<IdentityUserLogin<string>>(b => { b.ToTable("UsersLogins"); });
-        builder.Entity<IdentityRoleClaim<string>>(b => { b.ToTable("RolesClaims"); });
-        builder.Entity<IdentityUserToken<string>>(b => { b.ToTable("UsersTokens"); });
+        builder.Entity<ApplicationUser>().ToTable("Users");
+        builder.Entity<IdentityRole>().ToTable("Roles");
+        builder.Entity<IdentityUserRole<string>>().ToTable("UsersRoles");
+        builder.Entity<IdentityUserClaim<string>>().ToTable("UsersClaims");
+        builder.Entity<IdentityUserLogin<string>>().ToTable("UsersLogins");
+        builder.Entity<IdentityRoleClaim<string>>().ToTable("RolesClaims");
+        builder.Entity<IdentityUserToken<string>>().ToTable("UsersTokens");
     }
 }
