@@ -17,7 +17,7 @@ Instrucciones:
 
 
 ## Integrantes 
-* Ahumada, Matias - 57903
+* Balceda Paz, Sofia - 57927
 * Barrientos, Victorias - 57911
 * Lopez, Mauro - 58066
 * Lorca, Nicole - 60705 
