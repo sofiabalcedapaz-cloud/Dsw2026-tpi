@@ -53,16 +53,6 @@ namespace Dsw2026Tpi.Api.Configurations
                             Window = TimeSpan.FromSeconds(section.GetValue<int>("AppointmentBooking:WindowSeconds")),
                             QueueLimit = 0
                         }));
-
-                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
-                    RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: httpContext.User.Identity?.Name ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-                        factory: _ => new FixedWindowRateLimiterOptions
-                        {
-                            PermitLimit = section.GetValue<int>("General:PermitLimit"),
-                            Window = TimeSpan.FromSeconds(section.GetValue<int>("General:WindowSeconds")),
-                            QueueLimit = 0
-                        }));
             });
 
             return services;

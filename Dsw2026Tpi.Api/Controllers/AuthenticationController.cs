@@ -18,7 +18,6 @@ public class AuthenticationController : AppController
         _authenticationService = authenticationService;
     }
 
-
     [HttpPost("admin/login")]
     [AllowAnonymous]
     [EnableRateLimiting(RateLimitPolices.AdminLogin)]
