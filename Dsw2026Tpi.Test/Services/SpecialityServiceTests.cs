@@ -21,8 +21,9 @@ public class SpecialityServiceTests
     [Fact]
     public async Task Create_ConDatosValidos_EntoncesCreaLaEspecialidad()
     {
-        // Arrange
+        
         var request = new SpecialityModel.Request("Cardiología", "Especialidad del corazón");
+
         _mockPersistence
             .First<Speciality>(Arg.Any<Expression<Func<Speciality, bool>>>())
             .Returns((Speciality?)null);
@@ -31,10 +32,10 @@ public class SpecialityServiceTests
             .Add(Arg.Any<Speciality>())
             .Returns(callInfo => callInfo.Arg<Speciality>());
 
-        // Act
+      
         var response = await _service.Create(request);
 
-        // Assert
+        
         Assert.Equal(request.Name, response.Name);
         Assert.Equal(request.Description, response.Description);
         await _mockPersistence.Received(1).Add(Arg.Any<Speciality>());
@@ -43,7 +44,7 @@ public class SpecialityServiceTests
     [Fact]
     public async Task Create_CuandoYaExisteUnaEspecialidadConEseNombre_EntoncesLanzaConflictException()
     {
-        // Arrange
+      
         var request = new SpecialityModel.Request("Cardiología", "Especialidad del corazón");
         var existente = new Speciality("Cardiología", "Otra descripción");
 
@@ -51,21 +52,21 @@ public class SpecialityServiceTests
             .First<Speciality>(Arg.Any<Expression<Func<Speciality, bool>>>())
             .Returns(existente);
 
-        // Act - Assert
+      
         await Assert.ThrowsAsync<ConflictException>(() => _service.Create(request));
         await _mockPersistence.DidNotReceive().Add(Arg.Any<Speciality>());
     }
 
     [Theory]
-    [InlineData("", "Descripción válida y larga")]      // nombre vacío
-    [InlineData("Ca", "Descripción válida y larga")]    // nombre muy corto (< 3)
-    [InlineData("Cardiología", "corta")]                // descripción muy corta (< 10)
+    [InlineData("", "Descripción válida y larga")]     
+    [InlineData("Ca", "Descripción válida y larga")]    
+    [InlineData("Cardiología", "corta")]                
     public async Task Create_ConDatosInvalidos_EntoncesLanzaValidationException(string nombre, string descripcion)
     {
-        // Arrange
+        
         var request = new SpecialityModel.Request(nombre, descripcion);
 
-        // Act - Assert
+       
         await Assert.ThrowsAsync<ValidationException>(() => _service.Create(request));
         await _mockPersistence.DidNotReceive().Add(Arg.Any<Speciality>());
     }
@@ -73,7 +74,7 @@ public class SpecialityServiceTests
     [Fact]
     public async Task Update_CuandoLaEspecialidadNoExiste_EntoncesLanzaEntityNotFoundException()
     {
-        // Arrange
+        
         var id = Guid.NewGuid();
         var request = new SpecialityModel.Request("Cardiología", "Especialidad del corazón");
 
@@ -81,28 +82,29 @@ public class SpecialityServiceTests
             .GetById<Speciality>(id)
             .Returns((Speciality?)null);
 
-        // Act - Assert
+        
         await Assert.ThrowsAsync<EntityNotFoundException>(() => _service.Update(id, request));
     }
 
     [Fact]
     public async Task Update_ConDatosValidos_EntoncesActualizaLaEspecialidad()
     {
-        // Arrange
+       
         var speciality = new Speciality("Cardiología", "Descripción original larga");
         var request = new SpecialityModel.Request("Traumatología", "Descripción nueva y larga");
 
         _mockPersistence
             .GetById<Speciality>(speciality.Id)
             .Returns(speciality);
+
         _mockPersistence
             .First<Speciality>(Arg.Any<Expression<Func<Speciality, bool>>>())
             .Returns((Speciality?)null);
 
-        // Act
+       
         var response = await _service.Update(speciality.Id, request);
 
-        // Assert
+        
         Assert.Equal(request.Name, response.Name);
         Assert.Equal(request.Description, response.Description);
         await _mockPersistence.Received(1).Update(Arg.Any<Speciality>());
@@ -111,29 +113,29 @@ public class SpecialityServiceTests
     [Fact]
     public async Task Delete_CuandoLaEspecialidadNoExiste_EntoncesLanzaEntityNotFoundException()
     {
-        // Arrange
+        
         var id = Guid.NewGuid();
         _mockPersistence
             .GetById<Speciality>(id)
             .Returns((Speciality?)null);
 
-        // Act - Assert
+       
         await Assert.ThrowsAsync<EntityNotFoundException>(() => _service.Delete(id));
     }
 
     [Fact]
     public async Task Delete_CuandoLaEspecialidadExiste_EntoncesLaElimina()
     {
-        // Arrange
+       
         var speciality = new Speciality("Cardiología", "Descripción original larga");
         _mockPersistence
             .GetById<Speciality>(speciality.Id)
             .Returns(speciality);
 
-        // Act
+       
         await _service.Delete(speciality.Id);
 
-        // Assert
+        
         await _mockPersistence.Received(1).Delete(speciality);
     }
 }
