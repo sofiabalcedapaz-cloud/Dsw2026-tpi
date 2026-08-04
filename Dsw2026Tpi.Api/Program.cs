@@ -3,6 +3,9 @@ using Dsw2026Tpi.Api.Middlewares;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Serilog;
+using Dsw2026Tpi.Data.Identity;
+using Dsw2026Tpi.CrossCutting.Identity;
+using Microsoft.AspNetCore.Identity;
 
 namespace Dsw2026Tpi.Api;
 
@@ -10,7 +13,6 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        // Inicializar con un logger simple antes de construir el host
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
             .CreateBootstrapLogger();
@@ -21,7 +23,6 @@ public class Program
 
             var builder = WebApplication.CreateBuilder(args);
 
-            //Configuraciones personalizadas
             builder.AddSerilogConfiguration();
             builder.Services.AddAppIdentity();
             builder.Services.AddAppAuthentication(builder.Configuration);
@@ -32,11 +33,43 @@ public class Program
             builder.Services.AddAppDependencies();
             builder.Services.AddControllers();
             builder.Services.AddHealthChecks();
-            
 
             var app = builder.Build();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+                var adminEmail = configuration["AdminSeed:Email"];
+                var adminPassword = configuration["AdminSeed:Password"];
+
+                if (!string.IsNullOrWhiteSpace(adminEmail) && await userManager.FindByEmailAsync(adminEmail) is null)
+                {
+                    var adminUser = new ApplicationUser
+                    {
+                        UserName = adminEmail,
+                        Email = adminEmail,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+
+                    var result = await userManager.CreateAsync(adminUser, adminPassword!);
+                    if (result.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(adminUser, Roles.Administrator);
+                        Log.Information("Usuario administrador inicial creado: {Email}", adminEmail);
+                    }
+                    else
+                    {
+                        Log.Warning("No se pudo crear el usuario administrador inicial: {Errors}",
+                            string.Join(", ", result.Errors.Select(e => e.Description)));
+                    }
+                }
+            }
+
             app.UseSerilogRequestLogging();
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             if (app.Environment.IsProduction())
             {
@@ -53,7 +86,6 @@ public class Program
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseRateLimiter();
-            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.MapControllers();
             app.MapHealthChecks("/health-check");

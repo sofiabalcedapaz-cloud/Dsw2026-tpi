@@ -40,46 +40,18 @@ public class AuthenticationService : IAuthenticationService
         if (!request.Email.IsEmailValid())
             throw new AuthenticationException();
 
-        var user = await _userManager.FindByEmailAsync(request.Email);
+        var user = await _userManager.FindByEmailAsync(request.Email)
+            ?? throw new AuthenticationException();
 
-        if (user == null)
+        var roles = await _userManager.GetRolesAsync(user);
+        if (!roles.Contains(Roles.Administrator))
+            throw new AuthenticationException();
+
+        var result = await _signInManager.CheckPassword(user, request.Password);
+        if (!result)
         {
-            user = new ApplicationUser
-            {
-                UserName = request.Email,
-                Email = request.Email,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
-
-            var createResult = await _userManager.CreateAsync(user, request.Password);
-
-            if (!createResult.Succeeded)
-            {
-                throw new ConflictException(
-                    nameof(ErrorCodes.REGISTER_USER_CONFLICT),
-                    ErrorCodes.REGISTER_USER_CONFLICT)
-                    .WithDetail(createResult.Errors.Select(e => (e.Code, e.Description)));
-            }
-
-            await _userManager.AddToRoleAsync(user, Roles.Administrator);
-
-            _logger.LogInformation("Administrador creado: {Email}", request.Email);
-        }
-        else
-        {
-            var roles = await _userManager.GetRolesAsync(user);
-
-            if (!roles.Contains(Roles.Administrator))
-                throw new AuthenticationException();
-
-            var result = await _signInManager.CheckPassword(user, request.Password);
-
-            if (!result)
-            {
-                _logger.LogError("Intento de login fallido para: {Email}", request.Email);
-                throw new AuthenticationException();
-            }
+            _logger.LogError("Intento de login fallido para: {Email}", request.Email);
+            throw new AuthenticationException();
         }
 
         var token = _jwtService.GenerateToken(user.UserName!, Roles.Administrator);
