@@ -6,7 +6,7 @@ using Dsw2026Tpi.CrossCutting.Resources;
 using Dsw2026Tpi.Domain.Entities;
 using Dsw2026Tpi.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 namespace Dsw2026Tpi.Application.Services
 {
@@ -55,7 +55,6 @@ namespace Dsw2026Tpi.Application.Services
                 throw new ConflictException("APPOINTMENT_CONFLICT", "El turno ya fue reservado.")
                     .WithDetail("availabilitySlotId", "slot_unavailable");
             }
-
             return new AppointmentModel.Response(
                     appointment.Id,
                     appointment.Reason,
@@ -63,8 +62,8 @@ namespace Dsw2026Tpi.Application.Services
                     new AppointmentModel.SlotDto(
                         slot.Id,
                         slot.SlotDate,
-                        slot.StartTime,
-                        slot.EndTime,
+                        slot.StartTime.ToString("HH:mm"),
+                        slot.EndTime.ToString("HH:mm"),  
                         new AppointmentModel.DoctorDto(slot.AvailabilityRule.DoctorId, slot.AvailabilityRule.Doctor!.Name)),
                     new AppointmentModel.PatientDto(patient.Id, patient.Dni, patient.FullName));
         }

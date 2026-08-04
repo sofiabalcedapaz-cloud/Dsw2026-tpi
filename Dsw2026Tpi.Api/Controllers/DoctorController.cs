@@ -9,6 +9,7 @@ namespace Dsw2026Tpi.Api.Controllers;
 
 [Tags("3. Médicos")]
 [Route("api/doctors")]
+[Authorize]
 public class DoctorController : AppController
 {
     private readonly IDoctorService _service;
@@ -40,7 +41,6 @@ public class DoctorController : AppController
     }
 
     [HttpGet("{id:guid}/availabilities")]
-    [Authorize(Policy = Policies.AdminPolicy)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [EnableRateLimiting(RateLimitPolices.General)]
     public async Task<IActionResult> GetAvailabilities(Guid id)
