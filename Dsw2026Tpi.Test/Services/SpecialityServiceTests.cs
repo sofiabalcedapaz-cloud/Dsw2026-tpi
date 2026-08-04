@@ -23,8 +23,6 @@ public class SpecialityServiceTests
     {
         // Arrange
         var request = new SpecialityModel.Request("Cardiología", "Especialidad del corazón");
-
-        // "No hay ninguna especialidad con ese nombre todavía"
         _mockPersistence
             .First<Speciality>(Arg.Any<Expression<Func<Speciality, bool>>>())
             .Returns((Speciality?)null);
@@ -97,8 +95,6 @@ public class SpecialityServiceTests
         _mockPersistence
             .GetById<Speciality>(speciality.Id)
             .Returns(speciality);
-
-        // No hay otra especialidad con el nuevo nombre
         _mockPersistence
             .First<Speciality>(Arg.Any<Expression<Func<Speciality, bool>>>())
             .Returns((Speciality?)null);
