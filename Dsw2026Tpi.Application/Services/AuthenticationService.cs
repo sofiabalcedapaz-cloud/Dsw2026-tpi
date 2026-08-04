@@ -33,8 +33,6 @@ public class AuthenticationService : IAuthenticationService
         _jwtService = jwtService;
         _logger = logger;
         _persistence = persistence;
-
-
     }
 
     public async Task<LoginAdminModel.Response> LoginAdmin(LoginAdminModel.Request request)

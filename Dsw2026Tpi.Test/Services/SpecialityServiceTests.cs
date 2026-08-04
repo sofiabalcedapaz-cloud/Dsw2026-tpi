@@ -24,7 +24,6 @@ public class SpecialityServiceTests
         
         var request = new SpecialityModel.Request("Cardiología", "Especialidad del corazón");
 
-     
         _mockPersistence
             .First<Speciality>(Arg.Any<Expression<Func<Speciality, bool>>>())
             .Returns((Speciality?)null);
@@ -97,7 +96,6 @@ public class SpecialityServiceTests
         _mockPersistence
             .GetById<Speciality>(speciality.Id)
             .Returns(speciality);
-
 
         _mockPersistence
             .First<Speciality>(Arg.Any<Expression<Func<Speciality, bool>>>())
